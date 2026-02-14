@@ -11,7 +11,6 @@ export interface ChatCompleteRequest {
   message: string;
   chatId?: string; // opcional
   history?: Array<{ role: 'user' | 'assistant'; content: string }>; // renomeado de chat_history
-  // mode?: 'balanced' | 'fast' | 'creative'; // removido, backend não usa
 }
 
 export interface ChatCompleteResponse {
