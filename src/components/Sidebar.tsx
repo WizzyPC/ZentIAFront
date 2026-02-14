@@ -1,3 +1,54 @@
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { MessageSquarePlus, UserRound, LogOut, MessagesSquare } from 'lucide-react';
+import clsx from 'clsx';
+import { useChatStore } from '../store/chatStore';
+import { useAuth } from '../auth/AuthContext';
+
+function Sidebar() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { chats, activeChatId, createChat, setActiveChat } = useChatStore();
+
+  const onNewChat = async () => {
+    if (!user) return;
+    await createChat(user.id, 'balanced');
+    navigate('/app/chat');
+  };
+
+  return (
+    <aside className="flex h-full w-full flex-col border-r border-slate-800 bg-slate-900/80 backdrop-blur-xl">
+      <div className="border-b border-slate-800 p-4">
+        <button
+          type="button"
+          onClick={onNewChat}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-3 py-2.5 font-semibold text-slate-950 transition hover:bg-brand-400"
+        >
+          <MessageSquarePlus size={16} /> Novo Chat
+        </button>
+      </div>
+
+      <div className="space-y-1 p-3">
+        <Link
+          to="/app/chat"
+          className={clsx(
+            'flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition',
+            location.pathname.includes('/chat') ? 'bg-slate-800 text-cyan-300' : 'text-slate-300 hover:bg-slate-800',
+          )}
+        >
+          <MessagesSquare size={16} /> Chats
+        </Link>
+        <Link
+          to="/app/account"
+          className={clsx(
+            'flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition',
+            location.pathname.includes('/account') ? 'bg-slate-800 text-cyan-300' : 'text-slate-300 hover:bg-slate-800',
+          )}
+        >
+          <UserRound size={16} /> Conta
+        </Link>
+      </div>
+
 import { Link, useLocation } from 'react-router-dom';
 import { MessageSquarePlus, User, LogOut } from 'lucide-react';
 import clsx from 'clsx';
@@ -25,6 +76,16 @@ function Sidebar() {
           <button
             key={chat.id}
             type="button"
+            onClick={() => {
+              if (!user) return;
+              setActiveChat(user.id, chat.id);
+              navigate('/app/chat');
+            }}
+            className={clsx(
+              'w-full rounded-xl border px-3 py-2 text-left text-sm transition',
+              activeChatId === chat.id
+                ? 'border-cyan-500/40 bg-slate-800 text-cyan-200 shadow-glow'
+                : 'border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-slate-100',
             onClick={() => setActiveChat(chat.id)}
             className={clsx(
               'w-full rounded-lg px-3 py-2 text-left text-sm transition',
@@ -40,6 +101,14 @@ function Sidebar() {
       </div>
 
       <div className="border-t border-slate-800 p-3 text-sm">
+        <button
+          type="button"
+          onClick={signOut}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-slate-300 transition hover:bg-slate-800"
+        >
+          <LogOut size={16} /> Sair
+        </button>
+        <p className="mt-2 truncate px-3 text-xs text-slate-500">{user?.email}</p>
         <Link
           to="/app/account"
           className={clsx(

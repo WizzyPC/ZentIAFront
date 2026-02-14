@@ -1,5 +1,17 @@
 # ZentIAFront
 
+Frontend profissional da **Zent IA** com autenticação real via Supabase e chat integrado ao backend.
+
+## Principais melhorias
+
+- ✅ Autenticação real com **Supabase Auth** (`email + senha`, sessão persistida e logout real).
+- ✅ Proteção real de rotas baseada em sessão Supabase.
+- ✅ `Authorization: Bearer <access_token>` nas rotas protegidas da API.
+- ✅ Chat com histórico por usuário + sincronização com Supabase (fallback local).
+- ✅ Efeito de resposta progressiva (streaming visual digitando).
+- ✅ Feedback em respostas da IA (👍 👎).
+- ✅ Melhorias visuais: avatars, contraste, espaçamento e navegação consistente.
+- ✅ Página de conta com botão **Voltar para chats** + configurações básicas.
 Frontend completo da **Zent IA** com React + TypeScript + Tailwind + Vite.
 
 ## Funcionalidades
@@ -21,8 +33,10 @@ Frontend completo da **Zent IA** com React + TypeScript + Tailwind + Vite.
 - Vite
 - Tailwind CSS
 - React Router
-- Zustand (estado global)
+- Zustand
+- Supabase JS
 - Axios
+- React Markdown + Syntax Highlighter
 
 ## Configuração
 
@@ -50,6 +64,15 @@ A aplicação roda em `http://localhost:5173` por padrão.
 
 ### Vercel
 
+- Build command: `npm run build`
+- Output directory: `dist`
+- `vercel.json` já configurado para fallback SPA.
+
+### Netlify
+
+- Build command: `npm run build`
+- Publish directory: `dist`
+- `public/_redirects` já configurado para fallback SPA.
 - `vercel.json` já configurado para SPA fallback.
 - Build command: `npm run build`
 - Output directory: `dist`

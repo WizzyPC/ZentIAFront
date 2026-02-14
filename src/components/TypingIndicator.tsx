@@ -1,3 +1,9 @@
+import { Bot } from 'lucide-react';
+
+function TypingIndicator() {
+  return (
+    <div className="flex items-center gap-3">
+      <Bot size={18} className="text-cyan-300" />
 function TypingIndicator() {
   return (
     <div className="flex justify-start">
