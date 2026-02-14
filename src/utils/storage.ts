@@ -1,37 +1,40 @@
-import { ChatSession, User } from '../types/chat';
+import { ChatSession, ChatMode } from '../types/chat';
 
-const USER_KEY = 'zentia:user';
-const CHATS_KEY = 'zentia:chats';
-const ACTIVE_CHAT_KEY = 'zentia:active-chat';
+const SETTINGS_KEY = 'zentia:settings';
 
-export function saveUser(user: User) {
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+const userChatsKey = (userId: string) => `zentia:chats:${userId}`;
+const userActiveChatKey = (userId: string) => `zentia:active-chat:${userId}`;
+
+export function saveLocalChats(userId: string, chats: ChatSession[]): void {
+  localStorage.setItem(userChatsKey(userId), JSON.stringify(chats));
 }
 
-export function getUser(): User | null {
-  const raw = localStorage.getItem(USER_KEY);
-  if (!raw) return null;
-  return JSON.parse(raw) as User;
+export function getLocalChats(userId: string): ChatSession[] {
+  const raw = localStorage.getItem(userChatsKey(userId));
+  return raw ? (JSON.parse(raw) as ChatSession[]) : [];
 }
 
-export function clearUser() {
-  localStorage.removeItem(USER_KEY);
+export function saveLocalActiveChat(userId: string, chatId: string): void {
+  localStorage.setItem(userActiveChatKey(userId), chatId);
 }
 
-export function saveChats(chats: ChatSession[]) {
-  localStorage.setItem(CHATS_KEY, JSON.stringify(chats));
+export function getLocalActiveChat(userId: string): string | null {
+  return localStorage.getItem(userActiveChatKey(userId));
 }
 
-export function getChats(): ChatSession[] {
-  const raw = localStorage.getItem(CHATS_KEY);
-  if (!raw) return [];
-  return JSON.parse(raw) as ChatSession[];
+export interface UserSettings {
+  preferredMode: ChatMode;
 }
 
-export function saveActiveChat(chatId: string) {
-  localStorage.setItem(ACTIVE_CHAT_KEY, chatId);
+export function getUserSettings(): UserSettings {
+  const raw = localStorage.getItem(SETTINGS_KEY);
+  if (!raw) {
+    return { preferredMode: 'balanced' };
+  }
+
+  return JSON.parse(raw) as UserSettings;
 }
 
-export function getActiveChat() {
-  return localStorage.getItem(ACTIVE_CHAT_KEY);
+export function saveUserSettings(settings: UserSettings): void {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 }

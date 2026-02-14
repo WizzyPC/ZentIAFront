@@ -1,3 +1,6 @@
+import { ReactNode } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { ReactNode } from 'react';
 import { useChatStore } from '../store/chatStore';
@@ -7,6 +10,17 @@ interface Props {
 }
 
 function ProtectedRoute({ children }: Props) {
+  const { session, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-slate-300">
+        Carregando sessão...
+      </div>
+    );
+  }
+
+  if (!session) {
   const user = useChatStore((state) => state.user);
 
   if (!user) {
