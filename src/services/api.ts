@@ -10,7 +10,7 @@ const api = axios.create({
 export interface ChatCompleteRequest {
   message: string;
   mode?: 'balanced' | 'fast' | 'creative';
-  history?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  chat_history?: Array<{ role: 'user' | 'assistant'; content: string }>;
 }
 
 export interface ChatCompleteResponse {
