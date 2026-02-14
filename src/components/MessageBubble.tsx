@@ -4,9 +4,6 @@ import ReactMarkdown, { Components } from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import clsx from 'clsx';
 import { Message } from '../types/chat';
 
 interface Props {
@@ -33,14 +30,17 @@ const markdownComponents: Components = {
     }
 
     return (
-      <code className="rounded bg-slate-900 px-1 py-0.5 text-cyan-300" {...rest}>
+      <code
+        className="rounded bg-slate-900 px-1 py-0.5 text-cyan-300"
+        {...rest}
+      >
         {children}
       </code>
     );
   },
 };
 
-function MessageBubble({ message, onFeedback }: Props) {
+const MessageBubble = ({ message, onFeedback }: Props) => {
   const isUser = message.sender === 'user';
 
   return (
@@ -50,7 +50,7 @@ function MessageBubble({ message, onFeedback }: Props) {
       <div
         className={clsx(
           'max-w-3xl rounded-2xl px-4 py-3 text-sm leading-relaxed',
-          isUser ? 'bg-cyan-600 text-cyan-50' : 'bg-slate-800 text-slate-100',
+          isUser ? 'bg-cyan-600 text-cyan-50' : 'bg-slate-800 text-slate-100'
         )}
       >
         {!isUser && (
@@ -59,7 +59,10 @@ function MessageBubble({ message, onFeedback }: Props) {
           </p>
         )}
 
-        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={markdownComponents}
+        >
           {message.content}
         </ReactMarkdown>
 
@@ -72,7 +75,7 @@ function MessageBubble({ message, onFeedback }: Props) {
                 'rounded-md p-1.5 transition',
                 message.feedback === 'up'
                   ? 'bg-emerald-500/20 text-emerald-300'
-                  : 'text-slate-400 hover:bg-slate-700',
+                  : 'text-slate-400 hover:bg-slate-700'
               )}
             >
               <ThumbsUp size={14} />
@@ -85,7 +88,7 @@ function MessageBubble({ message, onFeedback }: Props) {
                 'rounded-md p-1.5 transition',
                 message.feedback === 'down'
                   ? 'bg-rose-500/20 text-rose-300'
-                  : 'text-slate-400 hover:bg-slate-700',
+                  : 'text-slate-400 hover:bg-slate-700'
               )}
             >
               <ThumbsDown size={14} />
@@ -95,23 +98,8 @@ function MessageBubble({ message, onFeedback }: Props) {
       </div>
 
       {isUser && <UserRound size={18} className="mt-2 text-cyan-200" />}
-}
-
-function MessageBubble({ message }: Props) {
-  const isUser = message.sender === 'user';
-
-  return (
-    <div className={clsx('flex', isUser ? 'justify-end' : 'justify-start')}>
-      <div
-        className={clsx(
-          'markdown max-w-3xl rounded-2xl px-4 py-3 text-sm leading-relaxed',
-          isUser ? 'bg-cyan-600 text-cyan-50' : 'bg-slate-800 text-slate-100',
-        )}
-      >
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
-      </div>
     </div>
   );
-}
+};
 
 export default MessageBubble;
