@@ -1,15 +1,12 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { Navigate } from 'react-router-dom';
-import { ReactNode } from 'react';
-import { useChatStore } from '../store/chatStore';
 
 interface Props {
   children: ReactNode;
 }
 
-function ProtectedRoute({ children }: Props) {
+const ProtectedRoute = ({ children }: Props) => {
   const { session, loading } = useAuth();
 
   if (loading) {
@@ -21,13 +18,10 @@ function ProtectedRoute({ children }: Props) {
   }
 
   if (!session) {
-  const user = useChatStore((state) => state.user);
-
-  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
-}
+};
 
 export default ProtectedRoute;
