@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { Bot, ThumbsDown, ThumbsUp, UserRound } from 'lucide-react';
-import ReactMarkdown, { Components } from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
@@ -12,13 +12,13 @@ interface Props {
 }
 
 const markdownComponents = {
-  code({ children, className, ...rest }) {
+  code(props: any) {
+    const { children, className, ...rest } = props;
     const match = /language-(\w+)/.exec(className ?? '');
 
     if (match) {
       return (
         <SyntaxHighlighter
-          {...rest}
           style={oneDark}
           language={match[1]}
           PreTag="div"
