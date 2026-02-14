@@ -12,13 +12,12 @@ interface Props {
 }
 
 const markdownComponents: Components = {
-  code({ children, className, ...rest }) {
+  code({ children, className }) {
     const match = /language-(\w+)/.exec(className ?? '');
 
     if (match) {
       return (
         <SyntaxHighlighter
-          {...rest}
           style={oneDark}
           language={match[1]}
           PreTag="div"
@@ -30,10 +29,7 @@ const markdownComponents: Components = {
     }
 
     return (
-      <code
-        className="rounded bg-slate-900 px-1 py-0.5 text-cyan-300"
-        {...rest}
-      >
+      <code className="rounded bg-slate-900 px-1 py-0.5 text-cyan-300">
         {children}
       </code>
     );
