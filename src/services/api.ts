@@ -5,6 +5,7 @@ const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'https://zentia.onrender.co
 const api = axios.create({
   baseURL,
   timeout: 45_000,
+  timeout: 30_000,
 });
 
 export interface ChatCompleteRequest {
@@ -21,6 +22,8 @@ export interface ChatCompleteResponse {
 }
 
 const authHeader = (token: string) => ({ Authorization: `Bearer ${token}` });
+
+}
 
 export async function getSystemHealth() {
   const { data } = await api.get('/api/v1/system/health');
@@ -44,6 +47,15 @@ export async function ingestSource(sourceUrl: string, token: string) {
       headers: authHeader(token),
     },
   );
+export async function completeChat(payload: ChatCompleteRequest) {
+  const { data } = await api.post<ChatCompleteResponse>('/api/v1/chat/complete', payload);
+  return data;
+}
+
+export async function ingestSource(sourceUrl: string) {
+  const { data } = await api.post('/api/v1/ingestion/source', {
+    source_url: sourceUrl,
+  });
   return data;
 }
 
@@ -63,4 +75,9 @@ export function formatApiError(error: unknown) {
   if (error instanceof Error && error.message) return error.message;
 
   return 'Ocorreu um erro inesperado. Tente novamente em alguns segundos.';
+      return 'Não foi possível conectar à API. Verifique sua internet ou tente novamente.';
+    }
+  }
+
+  return 'Ocorreu um erro inesperado. Tente novamente.';
 }

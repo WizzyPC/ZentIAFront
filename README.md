@@ -12,6 +12,20 @@ Frontend profissional da **Zent IA** com autenticação real via Supabase e chat
 - ✅ Feedback em respostas da IA (👍 👎).
 - ✅ Melhorias visuais: avatars, contraste, espaçamento e navegação consistente.
 - ✅ Página de conta com botão **Voltar para chats** + configurações básicas.
+Frontend completo da **Zent IA** com React + TypeScript + Tailwind + Vite.
+
+## Funcionalidades
+
+- Login local de usuário (persistido no navegador).
+- Chat principal com mensagens de usuário/IA.
+- Histórico de chats e botão **Novo Chat**.
+- Indicador de digitação enquanto a IA responde.
+- Renderização de respostas em Markdown (incluindo blocos de código).
+- Painel de conta (perfil + plano).
+- Envio de fonte para ingestão via `/api/v1/ingestion/source`.
+- Health check da API via `/api/v1/system/health`.
+- Tratamento amigável para erros de rede/API.
+- Layout responsivo (sidebar móvel + desktop).
 
 ## Stack
 
@@ -32,33 +46,19 @@ npm install
 npm run dev
 ```
 
+A aplicação roda em `http://localhost:5173` por padrão.
+
 ## Variáveis de ambiente
 
-| Variável | Descrição |
-|---|---|
-| `VITE_SUPABASE_URL` | URL do projeto Supabase |
-| `VITE_SUPABASE_ANON_KEY` | Chave pública anon do Supabase |
-| `VITE_API_BASE_URL` | URL base da API backend |
+| Variável | Descrição | Padrão |
+|---|---|---|
+| `VITE_API_BASE_URL` | URL base da API backend | `https://zentia.onrender.com` |
 
 ## Endpoints integrados
 
-- `POST /api/v1/chat/complete` (autenticado com Bearer token)
+- `POST /api/v1/chat/complete`
 - `GET /api/v1/system/health`
-- `POST /api/v1/ingestion/source` (autenticado com Bearer token)
-
-## Tabela Supabase recomendada para histórico
-
-Crie a tabela `chat_sessions`:
-
-- `id` (text/uuid, primary key)
-- `user_id` (text)
-- `title` (text)
-- `created_at` (timestamptz)
-- `updated_at` (timestamptz)
-- `mode` (text)
-- `messages` (jsonb)
-
-> O app usa sincronização com Supabase quando disponível e fallback local quando necessário.
+- `POST /api/v1/ingestion/source`
 
 ## Deploy
 
@@ -73,6 +73,15 @@ Crie a tabela `chat_sessions`:
 - Build command: `npm run build`
 - Publish directory: `dist`
 - `public/_redirects` já configurado para fallback SPA.
+- `vercel.json` já configurado para SPA fallback.
+- Build command: `npm run build`
+- Output directory: `dist`
+
+### Netlify
+
+- Arquivo `public/_redirects` incluído para SPA fallback.
+- Build command: `npm run build`
+- Publish directory: `dist`
 
 ## Scripts
 

@@ -16,11 +16,23 @@ function AccountPage() {
     event.preventDefault();
     if (!session?.access_token) return;
 
+import { ingestSource, formatApiError } from '../services/api';
+import { useChatStore } from '../store/chatStore';
+
+function AccountPage() {
+  const user = useChatStore((state) => state.user);
+  const [sourceUrl, setSourceUrl] = useState('');
+  const [status, setStatus] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const submitIngestion = async (event: FormEvent) => {
+    event.preventDefault();
     setStatus(null);
     setLoading(true);
 
     try {
       await ingestSource(sourceUrl, session.access_token);
+      await ingestSource(sourceUrl);
       setStatus('Fonte enviada com sucesso para ingestão.');
       setSourceUrl('');
     } catch (error) {
@@ -44,6 +56,8 @@ function AccountPage() {
           <div className="flex justify-between border-b border-slate-800 pb-2">
             <dt className="text-slate-400">ID</dt>
             <dd className="max-w-[220px] truncate">{user?.id}</dd>
+            <dt className="text-slate-400">Nome</dt>
+            <dd>{user?.name}</dd>
           </div>
           <div className="flex justify-between border-b border-slate-800 pb-2">
             <dt className="text-slate-400">E-mail</dt>
@@ -52,6 +66,8 @@ function AccountPage() {
           <div className="flex justify-between pb-2">
             <dt className="text-slate-400">Sessão</dt>
             <dd className="text-emerald-300">Ativa</dd>
+            <dt className="text-slate-400">Plano</dt>
+            <dd>{user?.plan}</dd>
           </div>
         </dl>
       </div>

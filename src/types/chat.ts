@@ -19,3 +19,14 @@ export interface ChatSession {
   mode: 'balanced' | 'fast' | 'creative';
   messages: Message[];
 }
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  messages: Message[];
+}
+
+export interface User {
+  name: string;
+  email: string;
+  plan: 'Free' | 'Pro' | 'Enterprise';
+}
