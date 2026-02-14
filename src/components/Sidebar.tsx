@@ -18,11 +18,11 @@ const Sidebar = () => {
   const handleNewChat = async () => {
     if (!user) return;
 
-    const newChat = await createChat(user.id, 'balanced');
-    if (newChat?.id) {
-      setActiveChat(user.id, newChat.id);
+    const newChatId = await createChat(user.id, 'balanced');
+    if (newChatId) {
+      setActiveChat(user.id, newChatId);
     }
-
+    
     navigate('/app/chat');
   };
 
