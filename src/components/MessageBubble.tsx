@@ -11,7 +11,7 @@ interface Props {
   onFeedback?: (feedback: 'up' | 'down') => void;
 }
 
-const markdownComponents: Components = {
+const markdownComponents = {
   code({ children, className, ...rest }) {
     const match = /language-(\w+)/.exec(className ?? '');
 
