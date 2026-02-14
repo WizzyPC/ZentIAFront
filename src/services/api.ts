@@ -9,8 +9,8 @@ const api = axios.create({
 
 export interface ChatCompleteRequest {
   message: string;
-  chatId?: string; // opcional
-  history?: Array<{ role: 'user' | 'assistant'; content: string }>; // renomeado de chat_history
+  mode?: 'balanced' | 'fast' | 'creative';
+  chat_history?: Array<{ role: 'user' | 'assistant'; content: string }>;
 }
 
 export interface ChatCompleteResponse {
@@ -46,12 +46,6 @@ export async function getSystemHealth() {
 }
 
 export async function completeChat(payload: ChatCompleteRequest, token: string) {
-  // se vier chat_history, mapeia para history automaticamente
-  const fixedPayload = {
-    ...payload,
-    history: payload.history ?? (payload as any).chat_history ?? [],
-  };
-
   const headers = authHeader(token);
   console.log('Front: API call chat/complete', {
     url: '/api/v1/chat/complete',
@@ -60,11 +54,11 @@ export async function completeChat(payload: ChatCompleteRequest, token: string) 
       ...headers,
       Authorization: tokenPreview(token),
     },
-    payload: fixedPayload,
+    payload,
   });
 
   try {
-    const response = await api.post<ChatCompleteResponse>('/api/v1/chat/complete', fixedPayload, {
+    const response = await api.post<ChatCompleteResponse>('/api/v1/chat/complete', payload, {
       headers,
     });
 
