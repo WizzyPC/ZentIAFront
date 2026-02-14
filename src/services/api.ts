@@ -20,36 +20,107 @@ export interface ChatCompleteResponse {
   model?: string;
 }
 
+const tokenPreview = (token: string) => `Bearer ${token.slice(0, 8)}…`;
+
 const authHeader = (token: string) => ({
+  'Content-Type': 'application/json',
   Authorization: `Bearer ${token}`,
 });
 
 export async function getSystemHealth() {
-  const { data } = await api.get('/api/v1/system/health');
-  return data;
+  try {
+    const response = await api.get('/api/v1/system/health');
+    console.log('Front: API response', {
+      url: '/api/v1/system/health',
+      status: response.status,
+      data: response.data,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Front: API error', {
+      url: '/api/v1/system/health',
+      error,
+    });
+    throw error;
+  }
 }
 
 export async function completeChat(payload: ChatCompleteRequest, token: string) {
-  const { data } = await api.post<ChatCompleteResponse>(
-    '/api/v1/chat/complete',
+  const headers = authHeader(token);
+  console.log('Front: API call chat/complete', {
+    url: '/api/v1/chat/complete',
+    authHeader: tokenPreview(token),
+    headers: {
+      ...headers,
+      Authorization: tokenPreview(token),
+    },
     payload,
-    { headers: authHeader(token) },
-  );
+  });
 
-  return data;
+  try {
+    const response = await api.post<ChatCompleteResponse>('/api/v1/chat/complete', payload, {
+      headers,
+    });
+
+    console.log('Front: API response', {
+      url: '/api/v1/chat/complete',
+      status: response.status,
+      data: response.data,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Front: API error', {
+      url: '/api/v1/chat/complete',
+      authHeader: tokenPreview(token),
+      error,
+    });
+    throw error;
+  }
 }
 
 export async function ingestSource(sourceUrl: string, token: string) {
-  const { data } = await api.post(
-    '/api/v1/ingestion/source',
-    { source_url: sourceUrl },
-    { headers: authHeader(token) },
-  );
+  const headers = authHeader(token);
+  console.log('Front: API call ingestion/source', {
+    url: '/api/v1/ingestion/source',
+    authHeader: tokenPreview(token),
+    headers: {
+      ...headers,
+      Authorization: tokenPreview(token),
+    },
+    payload: { source_url: sourceUrl },
+  });
 
-  return data;
+  try {
+    const response = await api.post(
+      '/api/v1/ingestion/source',
+      { source_url: sourceUrl },
+      { headers },
+    );
+
+    console.log('Front: API response', {
+      url: '/api/v1/ingestion/source',
+      status: response.status,
+      data: response.data,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Front: API error', {
+      url: '/api/v1/ingestion/source',
+      authHeader: tokenPreview(token),
+      error,
+    });
+    throw error;
+  }
 }
 
 export function formatApiError(error: unknown): string {
+  console.warn('Front: formatting API error', {
+    error,
+    stack: error instanceof Error ? error.stack : undefined,
+  });
+
   if (axios.isAxiosError(error)) {
     if (error.response) {
       const payload = error.response.data as { detail?: string; message?: string } | undefined;

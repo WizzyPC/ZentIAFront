@@ -100,6 +100,10 @@ function ChatPage() {
         await wait(10);
       }
     } catch (apiError) {
+      console.error('Front: ChatPage sendMessage error', {
+        error: apiError,
+        stack: apiError instanceof Error ? apiError.stack : undefined,
+      });
       setError(formatApiError(apiError));
       await updateLastAssistantMessage(
         user.id,

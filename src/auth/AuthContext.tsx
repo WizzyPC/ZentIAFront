@@ -12,19 +12,36 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+const maskToken = (token?: string) => (token ? `${token.slice(0, 8)}…` : '(no token)');
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        console.log('Front: session loaded', {
+          user: data.session?.user?.email,
+          token: maskToken(data.session?.access_token),
+        });
+        setSession(data.session);
+        setLoading(false);
+      })
+      .catch((error: unknown) => {
+        console.error('Front: getSession error', error);
+        setLoading(false);
+      });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      console.log('Front: auth state changed', {
+        event,
+        user: nextSession?.user?.email,
+        token: maskToken(nextSession?.access_token),
+      });
       setSession(nextSession);
       setLoading(false);
     });
@@ -38,12 +55,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: session?.user ?? null,
       loading,
       signIn: async (email, password) => {
+        console.log('Front: signIn attempt', { email });
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) {
+          console.error('Front: signIn error', error);
+          throw error;
+        }
       },
       signOut: async () => {
+        console.log('Front: signOut attempt', {
+          user: session?.user?.email,
+          token: maskToken(session?.access_token),
+        });
         const { error } = await supabase.auth.signOut();
-        if (error) throw error;
+        if (error) {
+          console.error('Front: signOut error', error);
+          throw error;
+        }
       },
     }),
     [loading, session],

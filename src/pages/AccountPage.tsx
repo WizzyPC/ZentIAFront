@@ -28,6 +28,10 @@ function AccountPage() {
       setStatus('Fonte enviada com sucesso para ingestão.');
       setSourceUrl('');
     } catch (error) {
+      console.error('Front: AccountPage ingestion error', {
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       setStatus(formatApiError(error));
     } finally {
       setLoading(false);

@@ -6,7 +6,7 @@ interface Props {
   children: ReactNode;
 }
 
-const ProtectedRoute = ({ children }: Props) => {
+function ProtectedRoute({ children }: Props) {
   const { session, loading } = useAuth();
 
   if (loading) {
@@ -22,6 +22,6 @@ const ProtectedRoute = ({ children }: Props) => {
   }
 
   return <>{children}</>;
-};
+}
 
 export default ProtectedRoute;

@@ -12,12 +12,13 @@ interface Props {
 }
 
 const markdownComponents: Components = {
-  code({ children, className }) {
+  code({ children, className, ...rest }) {
     const match = /language-(\w+)/.exec(className ?? '');
 
     if (match) {
       return (
         <SyntaxHighlighter
+          {...rest}
           style={oneDark}
           language={match[1]}
           PreTag="div"
@@ -29,14 +30,14 @@ const markdownComponents: Components = {
     }
 
     return (
-      <code className="rounded bg-slate-900 px-1 py-0.5 text-cyan-300">
+      <code className="rounded bg-slate-900 px-1 py-0.5 text-cyan-300" {...rest}>
         {children}
       </code>
     );
   },
 };
 
-const MessageBubble = ({ message, onFeedback }: Props) => {
+function MessageBubble({ message, onFeedback }: Props) {
   const isUser = message.sender === 'user';
 
   return (
@@ -46,7 +47,7 @@ const MessageBubble = ({ message, onFeedback }: Props) => {
       <div
         className={clsx(
           'max-w-3xl rounded-2xl px-4 py-3 text-sm leading-relaxed',
-          isUser ? 'bg-cyan-600 text-cyan-50' : 'bg-slate-800 text-slate-100'
+          isUser ? 'bg-cyan-600 text-cyan-50' : 'bg-slate-800 text-slate-100',
         )}
       >
         {!isUser && (
@@ -55,10 +56,7 @@ const MessageBubble = ({ message, onFeedback }: Props) => {
           </p>
         )}
 
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={markdownComponents}
-        >
+        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
           {message.content}
         </ReactMarkdown>
 
@@ -71,7 +69,7 @@ const MessageBubble = ({ message, onFeedback }: Props) => {
                 'rounded-md p-1.5 transition',
                 message.feedback === 'up'
                   ? 'bg-emerald-500/20 text-emerald-300'
-                  : 'text-slate-400 hover:bg-slate-700'
+                  : 'text-slate-400 hover:bg-slate-700',
               )}
             >
               <ThumbsUp size={14} />
@@ -84,7 +82,7 @@ const MessageBubble = ({ message, onFeedback }: Props) => {
                 'rounded-md p-1.5 transition',
                 message.feedback === 'down'
                   ? 'bg-rose-500/20 text-rose-300'
-                  : 'text-slate-400 hover:bg-slate-700'
+                  : 'text-slate-400 hover:bg-slate-700',
               )}
             >
               <ThumbsDown size={14} />
@@ -96,6 +94,6 @@ const MessageBubble = ({ message, onFeedback }: Props) => {
       {isUser && <UserRound size={18} className="mt-2 text-cyan-200" />}
     </div>
   );
-};
+}
 
 export default MessageBubble;
