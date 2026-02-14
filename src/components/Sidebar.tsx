@@ -2,6 +2,9 @@ import clsx from 'clsx';
 import { LogOut, MessagesSquare, MessageSquarePlus, UserRound } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { Link, useLocation } from 'react-router-dom';
+import { MessageSquarePlus, User, LogOut } from 'lucide-react';
+import clsx from 'clsx';
 import { useChatStore } from '../store/chatStore';
 
 function Sidebar() {
@@ -31,6 +34,15 @@ function Sidebar() {
           type="button"
           onClick={onNewChat}
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-3 py-2.5 font-semibold text-slate-950 transition hover:bg-brand-400"
+  const { chats, activeChatId, createChat, setActiveChat, logout, user } = useChatStore();
+
+  return (
+    <aside className="flex h-full w-full flex-col border-r border-slate-800 bg-slate-900/70 backdrop-blur">
+      <div className="p-4">
+        <button
+          type="button"
+          onClick={() => createChat()}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-500 px-3 py-2 font-medium text-slate-950 transition hover:bg-brand-400"
         >
           <MessageSquarePlus size={16} />
           Novo Chat
@@ -82,6 +94,16 @@ function Sidebar() {
             <p className="truncate text-xs text-slate-500">
               {new Date(chat.updatedAt).toLocaleString()}
             </p>
+            onClick={() => setActiveChat(chat.id)}
+            className={clsx(
+              'w-full rounded-lg px-3 py-2 text-left text-sm transition',
+              activeChatId === chat.id
+                ? 'bg-slate-800 text-cyan-300 shadow-glow'
+                : 'bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-slate-100',
+            )}
+          >
+            <p className="truncate font-medium">{chat.title}</p>
+            <p className="truncate text-xs text-slate-500">{new Date(chat.updatedAt).toLocaleString()}</p>
           </button>
         ))}
       </div>

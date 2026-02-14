@@ -4,6 +4,9 @@ import ReactMarkdown, { Components } from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import clsx from 'clsx';
 import { Message } from '../types/chat';
 
 interface Props {
@@ -92,6 +95,21 @@ function MessageBubble({ message, onFeedback }: Props) {
       </div>
 
       {isUser && <UserRound size={18} className="mt-2 text-cyan-200" />}
+}
+
+function MessageBubble({ message }: Props) {
+  const isUser = message.sender === 'user';
+
+  return (
+    <div className={clsx('flex', isUser ? 'justify-end' : 'justify-start')}>
+      <div
+        className={clsx(
+          'markdown max-w-3xl rounded-2xl px-4 py-3 text-sm leading-relaxed',
+          isUser ? 'bg-cyan-600 text-cyan-50' : 'bg-slate-800 text-slate-100',
+        )}
+      >
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+      </div>
     </div>
   );
 }
