@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { SendHorizontal } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import MessageBubble from '../components/MessageBubble';
@@ -9,6 +9,10 @@ import { Message } from '../types/chat';
 import { getUserSettings } from '../utils/storage';
 
 type ChatMode = 'balanced' | 'fast' | 'creative';
+
+const MIN_ANIMATION_MS = 600;
+const MAX_ANIMATION_MS = 5000; // cap total
+const MS_PER_WORD = 55;        // ajuste fino
 
 function ChatPage() {
   const { session, user } = useAuth();
@@ -30,6 +34,8 @@ function ChatPage() {
     updateLastAssistantMessage,
   } = useChatStore();
 
+  const animationTokenRef = useRef(0);
+
   useEffect(() => {
     if (!user) return;
     void bootstrapUserChats(user.id, mode);
@@ -39,6 +45,74 @@ function ChatPage() {
     () => chats.find((chat) => chat.id === activeChatId) ?? chats[0],
     [activeChatId, chats],
   );
+
+  const animateAssistantMessage = async ({
+    fullText,
+    userId,
+    chatId,
+    model,
+  }: {
+    fullText: string;
+    userId: string;
+    chatId: string;
+    model: string;
+  }) => {
+    const animationId = ++animationTokenRef.current;
+
+    const words = fullText.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) {
+      await updateLastAssistantMessage(userId, chatId, fullText, model);
+      return;
+    }
+
+    const targetMs = Math.min(
+      MAX_ANIMATION_MS,
+      Math.max(MIN_ANIMATION_MS, words.length * MS_PER_WORD),
+    );
+
+    const start = performance.now();
+    let lastRenderedWordCount = 0;
+
+    await new Promise<void>((resolve) => {
+      const step = async () => {
+        // cancela animação antiga se começou uma nova mensagem
+        if (animationId !== animationTokenRef.current) {
+          resolve();
+          return;
+        }
+
+        const elapsed = performance.now() - start;
+        const progress = Math.min(1, elapsed / targetMs);
+
+        const shouldShowCount = Math.max(
+          1,
+          Math.floor(progress * words.length),
+        );
+
+        if (shouldShowCount !== lastRenderedWordCount) {
+          lastRenderedWordCount = shouldShowCount;
+          const partial = words.slice(0, shouldShowCount).join(' ');
+          await updateLastAssistantMessage(userId, chatId, partial, model);
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(() => {
+            void step();
+          });
+          return;
+        }
+
+        resolve();
+      };
+
+      void step();
+    });
+
+    // garante texto final completo
+    if (animationId === animationTokenRef.current) {
+      await updateLastAssistantMessage(userId, chatId, fullText, model);
+    }
+  };
 
   const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -86,16 +160,12 @@ function ChatPage() {
       const answer =
         response.response ?? response.answer ?? response.message ?? 'Sem resposta da IA.';
 
-      const chunkSize = 4;
-        for (let i = 0; i < answer.length; i += chunkSize) {
-          const partial = answer.slice(0, i + chunkSize);
-          await updateLastAssistantMessage(
-            user.id,
-            activeChat.id,
-            partial,
-            response.model ?? mode,
-          );
-        }
+      await animateAssistantMessage({
+        fullText: answer,
+        userId: user.id,
+        chatId: activeChat.id,
+        model: response.model ?? mode,
+      });
     } catch (apiError) {
       console.error('Front: ChatPage sendMessage error', {
         error: apiError,
