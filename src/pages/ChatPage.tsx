@@ -88,7 +88,6 @@ function ChatPage() {
 
       const answer =
         response.response ?? response.answer ?? response.message ?? 'Sem resposta da IA.';
-      let partial = '';
 
       const chunkSize = 4;
         for (let i = 0; i < answer.length; i += chunkSize) {
