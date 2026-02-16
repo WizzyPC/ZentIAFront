@@ -8,9 +8,6 @@ import { useChatStore } from '../store/chatStore';
 import { Message } from '../types/chat';
 import { getUserSettings } from '../utils/storage';
 
-const wait = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
-
 type ChatMode = 'balanced' | 'fast' | 'creative';
 
 function ChatPage() {
@@ -98,7 +95,6 @@ function ChatPage() {
             partial,
             response.model ?? mode,
           );
-          await wait(15);
         }
     } catch (apiError) {
       console.error('Front: ChatPage sendMessage error', {
