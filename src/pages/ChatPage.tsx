@@ -88,14 +88,15 @@ function ChatPage() {
       let partial = '';
 
       for (const char of answer) {
-        partial += char;
-        await updateLastAssistantMessage(
-          user.id,
-          activeChat.id,
-          answer,
-          response.model ?? mode,
-        );
-      }
+      partial += char;
+      await updateLastAssistantMessage(
+        user.id,
+        activeChat.id,
+        partial,
+        response.model ?? mode,
+      );
+      await wait(5);
+    }
     } catch (apiError) {
       console.error('Front: ChatPage sendMessage error', {
         error: apiError,
