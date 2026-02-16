@@ -8,6 +8,9 @@ import { useChatStore } from '../store/chatStore';
 import { Message } from '../types/chat';
 import { getUserSettings } from '../utils/storage';
 
+const wait = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 type ChatMode = 'balanced' | 'fast' | 'creative';
 
 function ChatPage() {
@@ -87,16 +90,17 @@ function ChatPage() {
         response.response ?? response.answer ?? response.message ?? 'Sem resposta da IA.';
       let partial = '';
 
-      for (const char of answer) {
-      partial += char;
-      await updateLastAssistantMessage(
-        user.id,
-        activeChat.id,
-        partial,
-        response.model ?? mode,
-      );
-      await wait(5);
-    }
+      const chunkSize = 4;
+        for (let i = 0; i < answer.length; i += chunkSize) {
+          const partial = answer.slice(0, i + chunkSize);
+          await updateLastAssistantMessage(
+            user.id,
+            activeChat.id,
+            partial,
+            response.model ?? mode,
+          );
+          await wait(15);
+        }
     } catch (apiError) {
       console.error('Front: ChatPage sendMessage error', {
         error: apiError,
