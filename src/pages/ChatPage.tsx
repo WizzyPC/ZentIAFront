@@ -97,7 +97,6 @@ function ChatPage() {
           partial,
           response.model ?? mode,
         );
-        await wait(10);
       }
     } catch (apiError) {
       console.error('Front: ChatPage sendMessage error', {
