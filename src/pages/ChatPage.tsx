@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { SendHorizontal } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import MessageBubble from '../components/MessageBubble';
@@ -12,11 +12,17 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 type ChatMode = 'balanced' | 'fast' | 'creative';
 
+type AnimationController = {
+  cancelled: boolean;
+  finalize: () => Promise<void>;
+};
+
 function ChatPage() {
   const { session, user } = useAuth();
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<ChatMode>(getUserSettings().preferredMode);
+  const animationRef = useRef<AnimationController | null>(null);
 
   const {
     chats,
@@ -37,10 +43,85 @@ function ChatPage() {
     void bootstrapUserChats(user.id, mode);
   }, [bootstrapUserChats, mode, user]);
 
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        animationRef.current.cancelled = true;
+        void animationRef.current.finalize();
+      }
+    };
+  }, []);
+
   const activeChat = useMemo(
     () => chats.find((chat) => chat.id === activeChatId) ?? chats[0],
     [activeChatId, chats],
   );
+
+  const cancelActiveAnimation = async () => {
+    const controller = animationRef.current;
+    if (!controller) return;
+
+    controller.cancelled = true;
+    await controller.finalize();
+    animationRef.current = null;
+  };
+
+  const animateAssistantResponse = async (
+    userId: string,
+    chatId: string,
+    answer: string,
+    model: string,
+  ) => {
+    const words = answer.match(/\S+\s*/g) ?? [];
+
+    let wordsPerStep = 1;
+    let baseInterval = 180;
+
+    if (answer.length > 120 && answer.length <= 400) {
+      wordsPerStep = 1;
+      baseInterval = 90;
+    } else if (answer.length > 400) {
+      wordsPerStep = answer.length > 900 ? 4 : 3;
+      baseInterval = 60;
+    }
+
+    const totalSteps = Math.max(1, Math.ceil(words.length / wordsPerStep));
+    const interval = Math.max(16, Math.min(baseInterval, Math.floor(2500 / totalSteps)));
+    const start = Date.now();
+
+    let partial = '';
+
+    const finalize = async () => {
+      await updateLastAssistantMessage(userId, chatId, answer, model);
+    };
+
+    const controller: AnimationController = {
+      cancelled: false,
+      finalize,
+    };
+
+    animationRef.current = controller;
+
+    for (let index = 0; index < words.length; index += wordsPerStep) {
+      if (controller.cancelled) {
+        return;
+      }
+
+      partial += words.slice(index, index + wordsPerStep).join('');
+      await updateLastAssistantMessage(userId, chatId, partial, model);
+
+      if (Date.now() - start > 2500) {
+        break;
+      }
+
+      await wait(interval);
+    }
+
+    await finalize();
+    if (animationRef.current === controller) {
+      animationRef.current = null;
+    }
+  };
 
   const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -49,6 +130,8 @@ function ChatPage() {
     if (!content || !activeChat || !user || !session?.access_token || isSubmitting) {
       return;
     }
+
+    await cancelActiveAnimation();
 
     setError(null);
     setSubmitting(true);
@@ -87,18 +170,11 @@ function ChatPage() {
 
       const answer =
         response.response ?? response.answer ?? response.message ?? 'Sem resposta da IA.';
-      let partial = '';
 
-      for (const char of answer) {
-        partial += char;
-        await updateLastAssistantMessage(
-          user.id,
-          activeChat.id,
-          partial,
-          response.model ?? mode,
-        );
-        await wait(10);
-      }
+      setTyping(false);
+      setSubmitting(false);
+
+      void animateAssistantResponse(user.id, activeChat.id, answer, response.model ?? mode);
     } catch (apiError) {
       console.error('Front: ChatPage sendMessage error', {
         error: apiError,
@@ -111,7 +187,6 @@ function ChatPage() {
         'Desculpe, não consegui responder agora. Tente novamente.',
         mode,
       );
-    } finally {
       setTyping(false);
       setSubmitting(false);
     }

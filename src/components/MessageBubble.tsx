@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { Bot, ThumbsDown, ThumbsUp, UserRound } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { Components } from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
@@ -11,9 +11,8 @@ interface Props {
   onFeedback?: (feedback: 'up' | 'down') => void;
 }
 
-const markdownComponents = {
-  code(props: any) {
-    const { children, className, ...rest } = props;
+const markdownComponents: Components = {
+  code({ children, className }) {
     const match = /language-(\w+)/.exec(className ?? '');
 
     if (match) {
@@ -29,11 +28,7 @@ const markdownComponents = {
       );
     }
 
-    return (
-      <code className="rounded bg-slate-900 px-1 py-0.5 text-cyan-300" {...rest}>
-        {children}
-      </code>
-    );
+    return <code className="rounded bg-slate-900 px-1 py-0.5 text-cyan-300">{children}</code>;
   },
 };
 
