@@ -73,6 +73,7 @@ export interface BudgetInfo {
 
 export interface ChatSession {
   id: string;
+  backendChatId?: string;
   userId: string;
   title: string;
   createdAt: string;

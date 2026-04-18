@@ -38,7 +38,7 @@ function ChatPage() {
     createChat,
     isSubmitting,
     setSubmitting,
-    setActiveChat,
+    setBackendChatId,
     beginUserTurn,
     appendToken,
     setGenerationState,
@@ -177,11 +177,13 @@ function ChatPage() {
   };
 
   const startGenerationFor = async ({
-    chatId,
+    localChatId,
+    backendChatId,
     content,
     parentMessageId,
   }: {
-    chatId: string;
+    localChatId: string;
+    backendChatId?: string;
     content: string;
     parentMessageId?: string;
   }) => {
@@ -191,16 +193,28 @@ function ChatPage() {
     setSubmitting(true);
 
     try {
+      const isValidUuid = (value: string) =>
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+
+      const payload = {
+        ...(backendChatId && isValidUuid(backendChatId) ? { chat_id: backendChatId } : {}),
+        ...(parentMessageId ? { parent_message_id: parentMessageId } : {}),
+        user_message: { content, attachments: [] },
+        mode,
+        rag: { enabled: true, source_ids: [] },
+        tools: { allowed: ['knowledge_search', 'code_interpreter'] },
+        output: { format: 'structured' as const, artifact_types: ['md', 'json', 'lua', 'luau', 'txt'] },
+      };
+      setArtifacts((prev) => ({ ...prev, [nextArtifact.id]: nextArtifact }));
+      await addArtifact({ userId: user.id, chatId, artifact: nextArtifact });
+      return;
+    }
+
+      console.log('chatId antes do envio:', backendChatId);
+      console.log('payload:', payload);
+
       const creation = await createGeneration(
-        {
-          chat_id: chatId,
-          parent_message_id: parentMessageId,
-          user_message: { content, attachments: [] },
-          mode,
-          rag: { enabled: true, source_ids: [] },
-          tools: { allowed: ['knowledge_search', 'code_interpreter'] },
-          output: { format: 'structured', artifact_types: ['md', 'json', 'lua', 'luau', 'txt'] },
-        },
+        payload,
         session.access_token,
         crypto.randomUUID(),
       );
@@ -213,14 +227,13 @@ function ChatPage() {
 
       setBudgetBlocked(false);
 
-      const resolvedChatId = creation.chat_id || chatId;
-      if (resolvedChatId !== chatId) {
-        setActiveChat(user.id, resolvedChatId);
+      if (creation.chat_id) {
+        await setBackendChatId(user.id, localChatId, creation.chat_id);
       }
 
       await beginUserTurn({
         userId: user.id,
-        chatId: resolvedChatId,
+        chatId: localChatId,
         content,
         generationId: creation.generation_id,
         mode,
@@ -228,7 +241,7 @@ function ChatPage() {
         budget: creation.budget,
       });
 
-      await openGenerationStream(resolvedChatId, creation.generation_id, session.access_token);
+      await openGenerationStream(localChatId, creation.generation_id, session.access_token);
     } catch (apiError) {
       setError(formatApiError(apiError));
     } finally {
@@ -236,16 +249,29 @@ function ChatPage() {
     }
   };
 
-  const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const openGenerationStream = async (chatId: string, generationId: string, token: string) => {
+    const controller = new AbortController();
+    streamAbortRef.current = controller;
 
     const content = input.trim();
     if (!content || !activeChat || !user || !session?.access_token || isSubmitting || budgetBlocked) {
       return;
     }
+  };
+
+  const startGenerationFor = async ({
+    chatId,
+    content,
+    parentMessageId,
+  }: {
+    chatId: string;
+    content: string;
+    parentMessageId?: string;
+  }) => {
+    if (!user || !session?.access_token) return;
 
     setInput('');
-    await startGenerationFor({ chatId: activeChat.id, content });
+    await startGenerationFor({ localChatId: activeChat.id, backendChatId: activeChat.backendChatId, content });
   };
 
   const handleCancel = async () => {

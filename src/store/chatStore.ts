@@ -23,6 +23,7 @@ interface ChatState {
   bootstrapUserChats: (userId: string, mode: ChatMode) => Promise<void>;
   createChat: (userId: string, mode: ChatMode) => Promise<string>;
   setActiveChat: (userId: string, chatId: string) => void;
+  setBackendChatId: (userId: string, localChatId: string, backendChatId: string) => Promise<void>;
   beginUserTurn: (params: {
     userId: string;
     chatId: string;
@@ -67,6 +68,7 @@ const makeNewChat = (userId: string, mode: ChatMode): ChatSession => {
   const now = new Date().toISOString();
   return {
     id: crypto.randomUUID(),
+    backendChatId: undefined,
     userId,
     title: 'Novo Chat',
     mode,
@@ -112,6 +114,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setActiveChat: (userId, chatId) => {
     saveLocalActiveChat(userId, chatId);
     set({ activeChatId: chatId });
+  },
+  setBackendChatId: async (userId, localChatId, backendChatId) => {
+    const now = new Date().toISOString();
+    const chats = mutateChat(get().chats, localChatId, (chat) => ({
+      ...chat,
+      backendChatId,
+      updatedAt: now,
+    }));
+    set({ chats });
+    await persist(userId, chats);
+    return { userMessageId, assistantMessageId };
   },
 
   beginUserTurn: async ({ userId, chatId, content, generationId, mode, estimatedCostUsd, budget }) => {
