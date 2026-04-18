@@ -21,9 +21,9 @@ function HealthBadge() {
     <span
       className={clsx(
         'inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium',
-        status === 'online' && 'bg-emerald-500/20 text-emerald-300',
-        status === 'offline' && 'bg-rose-500/20 text-rose-300',
-        status === 'loading' && 'bg-slate-700 text-slate-300',
+        status === 'online' && 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30',
+        status === 'offline' && 'bg-rose-500/15 text-rose-300 border border-rose-500/30',
+        status === 'loading' && 'bg-slate-700/50 text-slate-300 border border-slate-600',
       )}
     >
       <span
