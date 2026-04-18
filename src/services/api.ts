@@ -97,6 +97,9 @@ export async function createGeneration(payload: CreateGenerationRequest, token: 
     }
     throw error;
   }
+
+  const response = await api.post<CreateGenerationResponse>('/api/v1/chat/generations', payload, { headers });
+  return response.data;
 }
 
 export async function cancelGeneration(generationId: string, token: string, reason?: string) {

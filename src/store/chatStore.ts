@@ -124,6 +124,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }));
     set({ chats });
     await persist(userId, chats);
+    return { userMessageId, assistantMessageId };
   },
 
   beginUserTurn: async ({ userId, chatId, content, generationId, mode, estimatedCostUsd, budget }) => {

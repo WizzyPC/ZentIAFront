@@ -205,6 +205,10 @@ function ChatPage() {
         tools: { allowed: ['knowledge_search', 'code_interpreter'] },
         output: { format: 'structured' as const, artifact_types: ['md', 'json', 'lua', 'luau', 'txt'] },
       };
+      setArtifacts((prev) => ({ ...prev, [nextArtifact.id]: nextArtifact }));
+      await addArtifact({ userId: user.id, chatId, artifact: nextArtifact });
+      return;
+    }
 
       console.log('chatId antes do envio:', backendChatId);
       console.log('payload:', payload);
@@ -245,13 +249,26 @@ function ChatPage() {
     }
   };
 
-  const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const openGenerationStream = async (chatId: string, generationId: string, token: string) => {
+    const controller = new AbortController();
+    streamAbortRef.current = controller;
 
     const content = input.trim();
     if (!content || !activeChat || !user || !session?.access_token || isSubmitting || budgetBlocked) {
       return;
     }
+  };
+
+  const startGenerationFor = async ({
+    chatId,
+    content,
+    parentMessageId,
+  }: {
+    chatId: string;
+    content: string;
+    parentMessageId?: string;
+  }) => {
+    if (!user || !session?.access_token) return;
 
     setInput('');
     await startGenerationFor({ localChatId: activeChat.id, backendChatId: activeChat.backendChatId, content });
