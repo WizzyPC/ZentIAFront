@@ -195,7 +195,7 @@ function ChatPage() {
         {
           chat_id: chatId,
           parent_message_id: parentMessageId,
-          message: { role: 'user', content, attachments: [] },
+          user_message: { content, attachments: [] },
           mode,
           rag: { enabled: true, source_ids: [] },
           tools: { allowed: ['knowledge_search', 'code_interpreter'] },

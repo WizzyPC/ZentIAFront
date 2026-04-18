@@ -21,8 +21,7 @@ export interface ApiErrorEnvelope {
 export interface CreateGenerationRequest {
   chat_id?: string;
   parent_message_id?: string;
-  message: {
-    role: 'user';
+  user_message: {
     content: string;
     attachments?: Array<Record<string, unknown>>;
   };
@@ -77,6 +76,26 @@ export async function createGeneration(payload: CreateGenerationRequest, token: 
 
   if (idempotencyKey) {
     headers['Idempotency-Key'] = idempotencyKey;
+  }
+
+  console.log('payload', payload);
+
+  try {
+    const response = await api.post<CreateGenerationResponse>('/api/v1/chat/generations', payload, { headers });
+    return response.data;
+  } catch (error) {
+    try {
+      const res = await fetch(`${baseURL}/api/v1/chat/generations`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+      });
+      const text = await res.text();
+      console.log('status', res.status, 'body', text);
+    } catch (debugError) {
+      console.warn('debug fetch failed', debugError);
+    }
+    throw error;
   }
 
   const response = await api.post<CreateGenerationResponse>('/api/v1/chat/generations', payload, { headers });
