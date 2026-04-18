@@ -19,7 +19,7 @@ export interface ApiErrorEnvelope {
 }
 
 export interface CreateGenerationRequest {
-  chat_id?: string;
+  chat_id: chatId || undefined,
   parent_message_id?: string;
   user_message: {
     content: string;
