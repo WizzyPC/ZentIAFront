@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { LogOut, MessagesSquare, MessageSquarePlus, UserRound } from 'lucide-react';
+import { LogOut, MessagesSquare, MessageSquarePlus, Sparkles, UserRound } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { useChatStore } from '../store/chatStore';
@@ -12,25 +12,26 @@ function Sidebar() {
 
   const onNewChat = async () => {
     if (!user) return;
-
     await createChat(user.id, 'balanced');
     navigate('/app/chat');
   };
 
   const onSelectChat = (chatId: string) => {
     if (!user) return;
-
     setActiveChat(user.id, chatId);
     navigate('/app/chat');
   };
 
   return (
-    <aside className="flex h-full w-full flex-col border-r border-slate-800 bg-slate-900/80 backdrop-blur-xl">
-      <div className="border-b border-slate-800 p-4">
+    <aside className="flex h-full w-full flex-col border-r border-indigo-500/20 bg-slate-950/70 backdrop-blur-xl">
+      <div className="border-b border-indigo-500/20 p-4">
+        <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-wider text-indigo-300">
+          <Sparkles size={14} /> AI Workspace
+        </div>
         <button
           type="button"
           onClick={onNewChat}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-3 py-2.5 font-semibold text-slate-950 transition hover:bg-brand-400"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-400 px-3 py-2.5 font-semibold text-slate-950 transition hover:opacity-90"
         >
           <MessageSquarePlus size={16} />
           Novo Chat
@@ -43,7 +44,7 @@ function Sidebar() {
           className={clsx(
             'flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition',
             location.pathname.includes('/chat')
-              ? 'bg-slate-800 text-cyan-300'
+              ? 'bg-indigo-500/15 text-indigo-200'
               : 'text-slate-300 hover:bg-slate-800',
           )}
         >
@@ -56,7 +57,7 @@ function Sidebar() {
           className={clsx(
             'flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition',
             location.pathname.includes('/account')
-              ? 'bg-slate-800 text-cyan-300'
+              ? 'bg-indigo-500/15 text-indigo-200'
               : 'text-slate-300 hover:bg-slate-800',
           )}
         >
@@ -74,19 +75,17 @@ function Sidebar() {
             className={clsx(
               'w-full rounded-xl border px-3 py-2 text-left text-sm transition',
               activeChatId === chat.id
-                ? 'border-cyan-500/40 bg-slate-800 text-cyan-200 shadow-glow'
-                : 'border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-slate-100',
+                ? 'border-indigo-400/40 bg-indigo-500/10 text-indigo-100 shadow-glow'
+                : 'border-slate-800 bg-slate-900/70 text-slate-300 hover:bg-slate-800 hover:text-slate-100',
             )}
           >
             <p className="truncate font-medium">{chat.title}</p>
-            <p className="truncate text-xs text-slate-500">
-              {new Date(chat.updatedAt).toLocaleString()}
-            </p>
+            <p className="truncate text-xs text-slate-500">{new Date(chat.updatedAt).toLocaleString()}</p>
           </button>
         ))}
       </div>
 
-      <div className="border-t border-slate-800 p-3 text-sm">
+      <div className="border-t border-indigo-500/20 p-3 text-sm">
         <button
           type="button"
           onClick={signOut}

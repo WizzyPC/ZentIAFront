@@ -9,7 +9,7 @@ export async function loadUserChats(userId: string): Promise<ChatSession[]> {
 
   const { data, error } = await supabase
     .from(TABLE_NAME)
-    .select('id,user_id,title,created_at,updated_at,mode,messages')
+    .select('id,user_id,title,created_at,updated_at,mode,messages,generations')
     .eq('user_id', userId)
     .order('updated_at', { ascending: false });
 
@@ -25,6 +25,7 @@ export async function loadUserChats(userId: string): Promise<ChatSession[]> {
     updatedAt: row.updated_at,
     mode: (row.mode as ChatSession['mode']) ?? 'balanced',
     messages: Array.isArray(row.messages) ? row.messages : [],
+    generations: Array.isArray(row.generations) ? row.generations : [],
   }));
 
   saveLocalChats(userId, normalized);
@@ -42,6 +43,7 @@ export async function persistChats(userId: string, chats: ChatSession[]) {
     updated_at: chat.updatedAt,
     mode: chat.mode,
     messages: chat.messages,
+    generations: chat.generations ?? [],
   }));
 
   const { error } = await supabase.from(TABLE_NAME).upsert(payload, { onConflict: 'id' });

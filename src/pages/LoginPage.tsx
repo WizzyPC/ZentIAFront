@@ -32,15 +32,15 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#312e81,_#020617_60%)] p-4">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900/85 p-8 shadow-glow"
+        className="w-full max-w-md rounded-3xl border border-indigo-500/25 bg-slate-950/75 p-8 shadow-[0_20px_80px_rgba(59,130,246,0.2)] backdrop-blur"
       >
-        <h1 className="mb-2 text-2xl font-semibold text-cyan-300">Entrar no Zent IA</h1>
-        <p className="mb-6 text-sm text-slate-400">
-          Login real com Supabase Auth (email e senha).
-        </p>
+        <h1 className="mb-2 bg-gradient-to-r from-cyan-300 to-indigo-300 bg-clip-text text-2xl font-semibold text-transparent">
+          Entrar no Zent IA
+        </h1>
+        <p className="mb-6 text-sm text-slate-400">Experiência de chat em tempo real com SSE, tools e artifacts.</p>
 
         <label className="mb-4 block text-sm">
           <span className="mb-2 block text-slate-300">E-mail</span>
@@ -49,7 +49,7 @@ function LoginPage() {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 outline-none ring-cyan-500 transition focus:ring"
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 outline-none ring-indigo-400 transition focus:ring"
           />
         </label>
 
@@ -60,16 +60,16 @@ function LoginPage() {
             required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 outline-none ring-cyan-500 transition focus:ring"
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 outline-none ring-indigo-400 transition focus:ring"
           />
         </label>
 
-        {error && <p className="mb-4 text-sm text-rose-300">{error}</p>}
+        {error && <p className="mb-4 rounded-lg bg-rose-500/20 px-3 py-2 text-sm text-rose-200">{error}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-brand-500 px-4 py-2 font-semibold text-slate-950 transition hover:bg-brand-400 disabled:opacity-50"
+          className="w-full rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-400 px-4 py-2 font-semibold text-slate-950 transition hover:opacity-90 disabled:opacity-50"
         >
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
