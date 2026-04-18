@@ -152,7 +152,6 @@ function ChatPage() {
         citations: event.payload.citations,
         finishedAt: event.payload.finished_at,
       });
-      return;
     }
   };
 
@@ -213,11 +212,7 @@ function ChatPage() {
       console.log('chatId antes do envio:', backendChatId);
       console.log('payload:', payload);
 
-      const creation = await createGeneration(
-        payload,
-        session.access_token,
-        crypto.randomUUID(),
-      );
+      const creation = await createGeneration(payload, session.access_token, crypto.randomUUID());
 
       if (creation.budget?.allowed === false) {
         setBudgetBlocked(true);
@@ -258,17 +253,6 @@ function ChatPage() {
       return;
     }
   };
-
-  const startGenerationFor = async ({
-    chatId,
-    content,
-    parentMessageId,
-  }: {
-    chatId: string;
-    content: string;
-    parentMessageId?: string;
-  }) => {
-    if (!user || !session?.access_token) return;
 
     setInput('');
     await startGenerationFor({ localChatId: activeChat.id, backendChatId: activeChat.backendChatId, content });
